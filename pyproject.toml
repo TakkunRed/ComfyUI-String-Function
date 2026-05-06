@@ -6,7 +6,7 @@ license = {text = "MIT"}
 requires-python = ">=3.9"
 
 [project.urls]
-Repository = "https://github.com/takkun/ComfyUI-String-Function"
+Repository = "https://github.com/TakkunRed/ComfyUI-String-Function"
 
 [tool.comfy]
 PublisherId = "takkun"
