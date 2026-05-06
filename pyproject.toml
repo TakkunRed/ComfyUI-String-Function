@@ -1,5 +1,5 @@
 [project]
-name = "comfyui-string-function"
+name = "ComfyUI-String-Function"
 version = "1.0.0"
 description = "String manipulation nodes for ComfyUI. Includes String Extract Prompt for extracting prompts from LLM output."
 license = {text = "MIT"}
@@ -10,5 +10,5 @@ Repository = "https://github.com/TakkunRed/ComfyUI-String-Function"
 
 [tool.comfy]
 PublisherId = "takkun"
-DisplayName = "String Function"
+DisplayName = "ComfyUI-String-Function"
 Icon = ""
