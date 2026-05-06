@@ -1,0 +1,1051 @@
+{
+  "id": "3c073802-0046-40ef-a2cf-33ca77f2fea8",
+  "revision": 0,
+  "last_node_id": 30,
+  "last_link_id": 64,
+  "nodes": [
+    {
+      "id": 6,
+      "type": "CLIPTextEncode",
+      "pos": [
+        1236.9200805664068,
+        213.27996978759768
+      ],
+      "size": [
+        422.84503173828125,
+        164.31304931640625
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "clip",
+          "name": "clip",
+          "type": "CLIP",
+          "link": 3
+        },
+        {
+          "label": "text",
+          "name": "text",
+          "type": "STRING",
+          "widget": {
+            "name": "text"
+          },
+          "link": 59
+        }
+      ],
+      "outputs": [
+        {
+          "label": "CONDITIONING",
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "slot_index": 0,
+          "links": [
+            4
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.20.1",
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "widgets_values": [
+        "beautiful scenery nature glass bottle landscape, , purple galaxy bottle,"
+      ]
+    },
+    {
+      "id": 7,
+      "type": "CLIPTextEncode",
+      "pos": [
+        1247.2401611328128,
+        444.44002685546894
+      ],
+      "size": [
+        425.27801513671875,
+        180.6060791015625
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "clip",
+          "name": "clip",
+          "type": "CLIP",
+          "link": 5
+        },
+        {
+          "label": "text",
+          "name": "text",
+          "type": "STRING",
+          "widget": {
+            "name": "text"
+          },
+          "link": 60
+        }
+      ],
+      "outputs": [
+        {
+          "label": "CONDITIONING",
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "slot_index": 0,
+          "links": [
+            6
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.20.1",
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "widgets_values": [
+        ""
+      ]
+    },
+    {
+      "id": 8,
+      "type": "VAEDecode",
+      "pos": [
+        2071.400268554688,
+        219.6799530029297
+      ],
+      "size": [
+        210,
+        46
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "samples",
+          "name": "samples",
+          "type": "LATENT",
+          "link": 7
+        },
+        {
+          "label": "vae",
+          "name": "vae",
+          "type": "VAE",
+          "link": 8
+        }
+      ],
+      "outputs": [
+        {
+          "label": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "slot_index": 0,
+          "links": [
+            9
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.20.1",
+        "Node name for S&R": "VAEDecode"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 5,
+      "type": "EmptyLatentImage",
+      "pos": [
+        1267.6401611328126,
+        693.479986572266
+      ],
+      "size": [
+        315,
+        106
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "width",
+          "name": "width",
+          "type": "INT",
+          "widget": {
+            "name": "width"
+          },
+          "link": null
+        },
+        {
+          "label": "height",
+          "name": "height",
+          "type": "INT",
+          "widget": {
+            "name": "height"
+          },
+          "link": null
+        },
+        {
+          "label": "batch_size",
+          "name": "batch_size",
+          "type": "INT",
+          "widget": {
+            "name": "batch_size"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "label": "LATENT",
+          "name": "LATENT",
+          "type": "LATENT",
+          "slot_index": 0,
+          "links": [
+            2
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.20.1",
+        "Node name for S&R": "EmptyLatentImage"
+      },
+      "widgets_values": [
+        960,
+        640,
+        1
+      ]
+    },
+    {
+      "id": 9,
+      "type": "SaveImage",
+      "pos": [
+        1714.9998657226565,
+        533.0799865722659
+      ],
+      "size": [
+        444.0800537109376,
+        468.87991943359384
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "images",
+          "name": "images",
+          "type": "IMAGE",
+          "link": 9
+        },
+        {
+          "label": "filename_prefix",
+          "name": "filename_prefix",
+          "type": "STRING",
+          "widget": {
+            "name": "filename_prefix"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.20.1",
+        "Node name for S&R": "SaveImage"
+      },
+      "widgets_values": [
+        "ComfyUI"
+      ]
+    },
+    {
+      "id": 27,
+      "type": "SFn_StringExtractPrompt",
+      "pos": [
+        325.70004577636706,
+        215.3000564575198
+      ],
+      "size": [
+        400,
+        248
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "text",
+          "name": "text",
+          "type": "STRING",
+          "widget": {
+            "name": "text"
+          },
+          "link": 54
+        },
+        {
+          "label": "mode",
+          "name": "mode",
+          "type": "COMBO",
+          "widget": {
+            "name": "mode"
+          },
+          "link": null
+        },
+        {
+          "label": "json_key",
+          "name": "json_key",
+          "shape": 7,
+          "type": "STRING",
+          "widget": {
+            "name": "json_key"
+          },
+          "link": null
+        },
+        {
+          "label": "label_names",
+          "name": "label_names",
+          "shape": 7,
+          "type": "STRING",
+          "widget": {
+            "name": "label_names"
+          },
+          "link": null
+        },
+        {
+          "label": "strip_think_blocks",
+          "name": "strip_think_blocks",
+          "shape": 7,
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "strip_think_blocks"
+          },
+          "link": null
+        },
+        {
+          "label": "fallback_to_raw",
+          "name": "fallback_to_raw",
+          "shape": 7,
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "fallback_to_raw"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "label": "prompt",
+          "name": "prompt",
+          "type": "STRING",
+          "links": [
+            56
+          ]
+        },
+        {
+          "label": "method_used",
+          "name": "method_used",
+          "type": "STRING",
+          "links": null
+        },
+        {
+          "label": "success",
+          "name": "success",
+          "type": "BOOLEAN",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SFn_StringExtractPrompt"
+      },
+      "widgets_values": [
+        "",
+        "auto",
+        "prompt,description,text,content",
+        "Prompt,プロンプト,Description,Output,Result",
+        true,
+        true
+      ]
+    },
+    {
+      "id": 3,
+      "type": "KSampler",
+      "pos": [
+        1709.5599731445318,
+        212.39996643066402
+      ],
+      "size": [
+        315,
+        262
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "model",
+          "name": "model",
+          "type": "MODEL",
+          "link": 1
+        },
+        {
+          "label": "positive",
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 4
+        },
+        {
+          "label": "negative",
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": 6
+        },
+        {
+          "label": "latent_image",
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 2
+        },
+        {
+          "label": "seed",
+          "name": "seed",
+          "type": "INT",
+          "widget": {
+            "name": "seed"
+          },
+          "link": null
+        },
+        {
+          "label": "steps",
+          "name": "steps",
+          "type": "INT",
+          "widget": {
+            "name": "steps"
+          },
+          "link": null
+        },
+        {
+          "label": "cfg",
+          "name": "cfg",
+          "type": "FLOAT",
+          "widget": {
+            "name": "cfg"
+          },
+          "link": null
+        },
+        {
+          "label": "sampler_name",
+          "name": "sampler_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "sampler_name"
+          },
+          "link": null
+        },
+        {
+          "label": "scheduler",
+          "name": "scheduler",
+          "type": "COMBO",
+          "widget": {
+            "name": "scheduler"
+          },
+          "link": null
+        },
+        {
+          "label": "denoise",
+          "name": "denoise",
+          "type": "FLOAT",
+          "widget": {
+            "name": "denoise"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "label": "LATENT",
+          "name": "LATENT",
+          "type": "LATENT",
+          "slot_index": 0,
+          "links": [
+            7
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.20.1",
+        "Node name for S&R": "KSampler"
+      },
+      "widgets_values": [
+        231430212303775,
+        "randomize",
+        30,
+        1,
+        "dpmpp_2m_sde_gpu",
+        "beta",
+        1
+      ]
+    },
+    {
+      "id": 16,
+      "type": "PrimitiveStringMultiline",
+      "pos": [
+        -556.7000549316405,
+        203.9333093793106
+      ],
+      "size": [
+        443.6292414623158,
+        662.0409786517931
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "value",
+          "name": "value",
+          "type": "STRING",
+          "widget": {
+            "name": "value"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "label": "STRING",
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            12
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.20.1",
+        "Node name for S&R": "PrimitiveStringMultiline"
+      },
+      "widgets_values": [
+        "あなたは画像生成プロンプトを作るアシスタントです。\n出力は以下の形式のみとします。\n\nPROMPT: （ここに画像生成プロンプト）\n\n思考過程は絶対に出力しないでください。\n英語で出力してください。\n毎回違うプロンプトを生成してください。\n画像生成の再現性を高めるため、できるだけ詳細に出力してください。\n\n【テーマ】\n「夜空」\nWindowsの壁紙に使える、引き込まれるようなとてもきれいで感動的な風景画。"
+      ]
+    },
+    {
+      "id": 28,
+      "type": "SFn_PromptPreview",
+      "pos": [
+        770.100045776367,
+        205.62003631591776
+      ],
+      "size": [
+        429.92008056640634,
+        712.9599731445313
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "prompt",
+          "name": "prompt",
+          "shape": 7,
+          "type": "STRING",
+          "link": 56
+        },
+        {
+          "label": "negative_prompt",
+          "name": "negative_prompt",
+          "shape": 7,
+          "type": "STRING",
+          "link": 64
+        },
+        {
+          "label": "raw_text",
+          "name": "raw_text",
+          "shape": 7,
+          "type": "STRING",
+          "link": 58
+        }
+      ],
+      "outputs": [
+        {
+          "label": "prompt",
+          "name": "prompt",
+          "type": "STRING",
+          "links": [
+            59
+          ]
+        },
+        {
+          "label": "negative_prompt",
+          "name": "negative_prompt",
+          "type": "STRING",
+          "links": [
+            60
+          ]
+        },
+        {
+          "label": "raw_text",
+          "name": "raw_text",
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SFn_PromptPreview"
+      },
+      "widgets_values": [
+        "[ Prompt ]\nA breathtaking, highly detailed, and hyper-realistic landscape photograph suitable for a Windows desktop wallpaper. The scene is a deep night sky filled with the Milky Way galaxy, rendered in stunning, vibrant colors (nebula tones of magenta, cyan, and electric blue). Foreground elements include silhouetted mountain peaks or jagged rocks covered lightly in snow, providing a strong contrast to the brilliant sky. The foreground should incorporate some subtle atmospheric details like wispy clouds catching starlight, enhancing depth. Use cinematic lighting, deep contrast, and an extremely wide-angle shot (ultra-wide lens perspective). High resolution, 16:9 aspect ratio, dramatic, awe-inspiring, award-winning astrophotography style. --ar 16:9\n\n──────────────────────\n[ Negative Prompt ]\nblurry, low quality, amateur photography, saturated colors only, artificial glow, text, watermark, cartoonish, noisy.\n\n──────────────────────\n[ Raw LLM Output ]\n{\n\"prompt\": \"PROMPT: A breathtaking, highly detailed, and hyper-realistic landscape photograph suitable for a Windows desktop wallpaper. The scene is a deep night sky filled with the Milky Way galaxy, rendered in stunning, vibrant colors (nebula tones of magenta, cyan, and electric blue). Foreground elements include silhouetted mountain peaks or jagged rocks covered lightly in snow, providing a strong contrast to the brilliant sky. The foreground should incorporate some subtle atmospheric details like wispy clouds catching starlight, enhancing depth. Use cinematic lighting, deep contrast, and an extremely wide-angle shot (ultra-wide lens perspective). High resolution, 16:9 aspect ratio, dramatic, awe-inspiring, award-winning astrophotography style. --ar 16:9\"\n,\n\"negative_prompt\": \"blurry, low quality, amateur photography, saturated colors only, artificial glow, text, watermark, cartoonish, noisy.\"\n}"
+      ]
+    },
+    {
+      "id": 12,
+      "type": "Expo Lmstudio Text Generation",
+      "pos": [
+        -77.98268666307698,
+        230.88411159016104
+      ],
+      "size": [
+        367.123140971844,
+        417.53320754761046
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "prompt",
+          "name": "prompt",
+          "type": "STRING",
+          "widget": {
+            "name": "prompt"
+          },
+          "link": 12
+        },
+        {
+          "label": "system_prompt",
+          "name": "system_prompt",
+          "type": "STRING",
+          "widget": {
+            "name": "system_prompt"
+          },
+          "link": null
+        },
+        {
+          "label": "model_key",
+          "name": "model_key",
+          "type": "STRING",
+          "widget": {
+            "name": "model_key"
+          },
+          "link": null
+        },
+        {
+          "label": "auto_unload",
+          "name": "auto_unload",
+          "type": "COMBO",
+          "widget": {
+            "name": "auto_unload"
+          },
+          "link": null
+        },
+        {
+          "label": "unload_delay",
+          "name": "unload_delay",
+          "type": "INT",
+          "widget": {
+            "name": "unload_delay"
+          },
+          "link": null
+        },
+        {
+          "label": "seed",
+          "name": "seed",
+          "type": "INT",
+          "widget": {
+            "name": "seed"
+          },
+          "link": null
+        },
+        {
+          "label": "max_tokens",
+          "name": "max_tokens",
+          "shape": 7,
+          "type": "INT",
+          "widget": {
+            "name": "max_tokens"
+          },
+          "link": null
+        },
+        {
+          "label": "temperature",
+          "name": "temperature",
+          "shape": 7,
+          "type": "FLOAT",
+          "widget": {
+            "name": "temperature"
+          },
+          "link": null
+        },
+        {
+          "label": "debug",
+          "name": "debug",
+          "shape": 7,
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "debug"
+          },
+          "link": null
+        },
+        {
+          "label": "timeout_seconds",
+          "name": "timeout_seconds",
+          "shape": 7,
+          "type": "INT",
+          "widget": {
+            "name": "timeout_seconds"
+          },
+          "link": null
+        },
+        {
+          "label": "model",
+          "name": "model",
+          "shape": 7,
+          "type": "STRING",
+          "widget": {
+            "name": "model"
+          },
+          "link": null
+        },
+        {
+          "label": "ip_address",
+          "name": "ip_address",
+          "shape": 7,
+          "type": "STRING",
+          "widget": {
+            "name": "ip_address"
+          },
+          "link": null
+        },
+        {
+          "label": "port",
+          "name": "port",
+          "shape": 7,
+          "type": "INT",
+          "widget": {
+            "name": "port"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "label": "Generated Text",
+          "name": "Generated Text",
+          "type": "STRING",
+          "links": [
+            54,
+            58,
+            63
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-lmstudio-image-to-text-node",
+        "ver": "0d68cc36d111689919f9566397e2485e1bb5ed3d",
+        "Node name for S&R": "Expo Lmstudio Text Generation",
+        "ue_properties": {
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {},
+          "version": "7.5.2"
+        }
+      },
+      "widgets_values": [
+        "Please think of a background or situation that suits a cyberpunk-style woman and output a prompt for image generation.",
+        "You are a helpful AI assistant.",
+        "google/gemma-4-e4b",
+        "False",
+        0,
+        444190618487309,
+        "randomize",
+        1000,
+        0.7,
+        false,
+        300,
+        "",
+        "",
+        0
+      ]
+    },
+    {
+      "id": 4,
+      "type": "CheckpointLoaderSimple",
+      "pos": [
+        813.8399597167968,
+        35.60001449584963
+      ],
+      "size": [
+        315,
+        98
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "ckpt_name",
+          "name": "ckpt_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "ckpt_name"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "label": "MODEL",
+          "name": "MODEL",
+          "type": "MODEL",
+          "slot_index": 0,
+          "links": [
+            1
+          ]
+        },
+        {
+          "label": "CLIP",
+          "name": "CLIP",
+          "type": "CLIP",
+          "slot_index": 1,
+          "links": [
+            3,
+            5
+          ]
+        },
+        {
+          "label": "VAE",
+          "name": "VAE",
+          "type": "VAE",
+          "slot_index": 2,
+          "links": [
+            8
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.20.1",
+        "Node name for S&R": "CheckpointLoaderSimple"
+      },
+      "widgets_values": [
+        "SDXL\\animaPencilXLClear_v2.safetensors"
+      ]
+    },
+    {
+      "id": 30,
+      "type": "SFn_StringExtractPrompt",
+      "pos": [
+        329.9127999045629,
+        535.4109621914952
+      ],
+      "size": [
+        400,
+        248
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "widget": {
+            "name": "text"
+          },
+          "link": 63
+        }
+      ],
+      "outputs": [
+        {
+          "name": "prompt",
+          "type": "STRING",
+          "links": [
+            64
+          ]
+        },
+        {
+          "name": "method_used",
+          "type": "STRING",
+          "links": null
+        },
+        {
+          "name": "success",
+          "type": "BOOLEAN",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SFn_StringExtractPrompt"
+      },
+      "widgets_values": [
+        "",
+        "json",
+        "negative_prompt",
+        "negative_prompt",
+        true,
+        false
+      ]
+    }
+  ],
+  "links": [
+    [
+      1,
+      4,
+      0,
+      3,
+      0,
+      "MODEL"
+    ],
+    [
+      2,
+      5,
+      0,
+      3,
+      3,
+      "LATENT"
+    ],
+    [
+      3,
+      4,
+      1,
+      6,
+      0,
+      "CLIP"
+    ],
+    [
+      4,
+      6,
+      0,
+      3,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      5,
+      4,
+      1,
+      7,
+      0,
+      "CLIP"
+    ],
+    [
+      6,
+      7,
+      0,
+      3,
+      2,
+      "CONDITIONING"
+    ],
+    [
+      7,
+      3,
+      0,
+      8,
+      0,
+      "LATENT"
+    ],
+    [
+      8,
+      4,
+      2,
+      8,
+      1,
+      "VAE"
+    ],
+    [
+      9,
+      8,
+      0,
+      9,
+      0,
+      "IMAGE"
+    ],
+    [
+      12,
+      16,
+      0,
+      12,
+      0,
+      "STRING"
+    ],
+    [
+      54,
+      12,
+      0,
+      27,
+      0,
+      "STRING"
+    ],
+    [
+      56,
+      27,
+      0,
+      28,
+      0,
+      "STRING"
+    ],
+    [
+      58,
+      12,
+      0,
+      28,
+      2,
+      "STRING"
+    ],
+    [
+      59,
+      28,
+      0,
+      6,
+      1,
+      "STRING"
+    ],
+    [
+      60,
+      28,
+      1,
+      7,
+      1,
+      "STRING"
+    ],
+    [
+      63,
+      12,
+      0,
+      30,
+      0,
+      "STRING"
+    ],
+    [
+      64,
+      30,
+      0,
+      28,
+      1,
+      "STRING"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.9090909090909091,
+      "offset": [
+        810.3272269509058,
+        185.84906130704005
+      ]
+    },
+    "frontendVersion": "1.42.15"
+  },
+  "version": 0.4
+}
