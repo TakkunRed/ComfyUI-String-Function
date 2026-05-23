@@ -1,7 +1,7 @@
 # ComfyUI-String-Function
 
-ComfyUI 用の文字列操作カスタムノード集です。  
-LLM の出力からプロンプトを抽出する **String Extract Prompt** をはじめ、検索・分割・置換・正規表現など、テキスト処理に役立つノードを収録しています。
+ComfyUI 用の文字列操作・ファイル読み込みカスタムノード集です。  
+テキストファイルの読み込み、LLM の出力からのプロンプト抽出、検索・分割・置換・正規表現など、テキスト処理に役立つノードを収録しています。
 
 ---
 
@@ -30,6 +30,9 @@ git clone https://github.com/TakkunRed/ComfyUI-String-Function
 
 | ノード名 | 概要 |
 |---|---|
+| [File Read](#file-read) | テキストファイル全体を読み込む |
+| [File Read Line](#file-read-line) | テキストファイルを1行ずつ読み込む（実行のたびに次の行へ） |
+| [Folder File Read](#folder-file-read) | フォルダ内のファイルを1つずつ読み込む（実行のたびに次のファイルへ） |
 | [String Extract Prompt](#string-extract-prompt) | LLM出力からプロンプトだけを抽出 ★ |
 | [Prompt Preview](#prompt-preview) | Prompt / Negative Prompt / Raw テキストを確認・中継 |
 | [String Find](#string-find) | 文字列の位置を検索 |
@@ -40,6 +43,124 @@ git clone https://github.com/TakkunRed/ComfyUI-String-Function
 | [String Trim](#string-trim) | 前後の空白・指定文字を除去 |
 | [String Case](#string-case) | 大文字・小文字の変換 |
 | [String Regex Match](#string-regex-match) | 正規表現でマッチ・抽出 |
+
+---
+
+## File Read
+
+テキストファイル全体を読み込み、文字列として出力するノードです。
+
+### 入力
+
+| パラメータ | 型 | デフォルト | 説明 |
+|---|---|---|---|
+| `file_path` | STRING | — | 読み込むファイルのパス |
+| `encoding` | SELECT | `auto` | 文字コード（下表参照） |
+| `strip_newline_end` | BOOLEAN | `True` | ファイル末尾の改行を除去する |
+
+### 出力
+
+| 出力名 | 型 | 説明 |
+|---|---|---|
+| `text` | STRING | ファイル全体の内容 |
+| `line_count` | INT | 行数 |
+| `success` | BOOLEAN | 読み込み成功したか（ファイルが存在しない場合は `False`） |
+
+### encoding の選択肢
+
+| 値 | 動作 |
+|---|---|
+| `auto` | `utf-8-sig` → `utf-8` → `cp932` の順に自動判別（推奨） |
+| `utf-8` | UTF-8（BOM なし） |
+| `utf-8-sig` | UTF-8（BOM あり、Windows メモ帳保存ファイル等） |
+| `cp932` | Shift-JIS（Windows 日本語環境） |
+
+> **Note:** パスの前後にダブルクォート（`"C:\path\to\file.txt"`）が付いていても自動で除去します。  
+> ノード上の「📄 ファイルを参照...」ボタンをクリックするとファイル選択ダイアログが開きます。
+
+---
+
+## File Read Line
+
+テキストファイルを1行ずつ読み込むノードです。  
+実行のたびに自動で次の行へ進み、末尾に達すると先頭に戻ってループします。
+
+### 入力
+
+| パラメータ | 型 | デフォルト | 説明 |
+|---|---|---|---|
+| `file_path` | STRING | — | 読み込むファイルのパス |
+| `mode` | SELECT | `sequential` | 読み込み順序（下表参照） |
+| `reset` | BOOLEAN | `False` | `True` を受けた実行でカウンタを先頭にリセット |
+| `encoding` | SELECT | `auto` | 文字コード（File Read と同じ） |
+| `skip_empty_lines` | BOOLEAN | `False` | `True` にすると空行をスキップしてカウント |
+
+### 出力
+
+| 出力名 | 型 | 説明 |
+|---|---|---|
+| `line_text` | STRING | 現在の行の内容（末尾改行は除去済み） |
+| `line_index` | INT | 現在読んでいるファイル内の行番号（1始まり） |
+| `line_count` | INT | 総行数（`skip_empty_lines=True` のときは空行除外後の数） |
+| `is_last` | BOOLEAN | 今回の行が末尾だったか（次回は先頭に戻る） |
+
+### mode の選択肢
+
+| mode | 動作 |
+|---|---|
+| `sequential` | 1行目 → 2行目 → … → 末尾 → 1行目 → … と順番に進む |
+| `shuffle` | 全行をシャッフルして重複なしで消費。全件読み終えると再シャッフルして繰り返す |
+
+> **Note:** カウンタはメモリ上に保持されます。ComfyUI を再起動するとリセットされます。  
+> 同じファイルを読む複数のノードはそれぞれ独立したカウンタを持ちます。
+
+---
+
+## Folder File Read
+
+指定フォルダ内のファイルを1つずつ読み込むノードです。  
+実行のたびに自動で次のファイルへ進み、末尾に達すると先頭に戻ってループします。
+
+### 入力
+
+| パラメータ | 型 | デフォルト | 説明 |
+|---|---|---|---|
+| `folder_path` | STRING | — | フォルダのパス |
+| `mode` | SELECT | `sequential` | 読み込み順序（下表参照） |
+| `reset` | BOOLEAN | `False` | `True` を受けた実行でカウンタを先頭にリセット |
+| `extension_filter` | STRING | `.txt` | 対象拡張子（カンマ区切り例: `.txt,.md`）。空白で全ファイル |
+| `encoding` | SELECT | `auto` | 文字コード（File Read と同じ） |
+| `sort_order` | SELECT | `name_asc` | `sequential` モード時のファイル順序（下表参照） |
+
+### 出力
+
+| 出力名 | 型 | 説明 |
+|---|---|---|
+| `text` | STRING | ファイル全体の内容 |
+| `file_name` | STRING | ファイル名（パスなし・拡張子あり） |
+| `file_path_out` | STRING | ファイルのフルパス |
+| `file_index` | INT | 現在のファイルがリスト内の何番目か（1始まり） |
+| `file_count` | INT | フィルタ後の総ファイル数 |
+| `is_last` | BOOLEAN | 今回のファイルが末尾だったか（次回は先頭に戻る） |
+
+### mode の選択肢
+
+| mode | 動作 |
+|---|---|
+| `sequential` | `sort_order` の順に 1→2→…→末尾→1→2→… と進む |
+| `shuffle` | 全ファイルをシャッフルして重複なしで消費。全件終了後に再シャッフルして繰り返す |
+
+### sort_order の選択肢（sequential モード時）
+
+| 値 | 動作 |
+|---|---|
+| `name_asc` | ファイル名の昇順（A → Z） |
+| `name_desc` | ファイル名の降順（Z → A） |
+| `modified_asc` | 更新日時の古い順 |
+| `modified_desc` | 更新日時の新しい順 |
+
+> **Note:** カウンタはメモリ上に保持されます。ComfyUI を再起動するとリセットされます。  
+> ノード上の「📂 フォルダを参照...」ボタンをクリックするとフォルダ選択ダイアログが開きます。
 
 ---
 

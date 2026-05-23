@@ -1,3 +1,340 @@
+import os
+import random as _random
+
+
+def _normalize_path(path: str) -> str:
+    """前後の空白・ダブルクォートを除去してパスを正規化する"""
+    path = path.strip()
+    if len(path) >= 2 and path[0] == '"' and path[-1] == '"':
+        path = path[1:-1].strip()
+    return path
+
+
+def _read_text(file_path: str, encoding: str) -> str:
+    if encoding == "auto":
+        for enc in ("utf-8-sig", "utf-8", "cp932"):
+            try:
+                with open(file_path, "r", encoding=enc) as f:
+                    return f.read()
+            except (UnicodeDecodeError, UnicodeError):
+                continue
+        with open(file_path, "r", encoding="cp932", errors="replace") as f:
+            return f.read()
+    with open(file_path, "r", encoding=encoding) as f:
+        return f.read()
+
+
+class FileRead:
+    """テキストファイル全体を読み込む"""
+
+    _ENCODINGS = ["auto", "utf-8", "utf-8-sig", "cp932"]
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "file_path": ("STRING", {"multiline": False, "default": ""}),
+            },
+            "optional": {
+                "encoding": (cls._ENCODINGS, {"default": "auto"}),
+                "strip_newline_end": ("BOOLEAN", {
+                    "default": True,
+                    "tooltip": "ファイル末尾の改行を除去する",
+                }),
+            },
+        }
+
+    RETURN_TYPES = ("STRING", "INT", "BOOLEAN")
+    RETURN_NAMES = ("text", "line_count", "success")
+    FUNCTION = "read_file"
+    CATEGORY = "String Function"
+    DESCRIPTION = "テキストファイル全体を読み込みます"
+
+    def read_file(self, file_path, encoding="auto", strip_newline_end=True):
+        file_path = _normalize_path(file_path)
+        if not file_path or not os.path.isfile(file_path):
+            return ("", 0, False)
+        try:
+            text = _read_text(file_path, encoding)
+            if strip_newline_end:
+                text = text.rstrip("\r\n")
+            line_count = len(text.splitlines()) if text else 0
+            return (text, line_count, True)
+        except Exception:
+            return ("", 0, False)
+
+
+class FileReadLine:
+    """テキストファイルを1行ずつ読み込む（実行のたびに次の行へ進む）"""
+
+    _MODES = ["sequential", "shuffle"]
+    _ENCODINGS = ["auto", "utf-8", "utf-8-sig", "cp932"]
+    _state: dict = {}
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "file_path": ("STRING", {"multiline": False, "default": ""}),
+            },
+            "optional": {
+                "mode": (cls._MODES, {"default": "sequential"}),
+                "reset": ("BOOLEAN", {
+                    "default": False,
+                    "tooltip": "True を受けた実行でカウンタをリセットし先頭から再開する",
+                }),
+                "encoding": (cls._ENCODINGS, {"default": "auto"}),
+                "skip_empty_lines": ("BOOLEAN", {
+                    "default": False,
+                    "tooltip": "True にすると空行をスキップしてカウント",
+                }),
+            },
+            "hidden": {
+                "unique_id": "UNIQUE_ID",
+            },
+        }
+
+    RETURN_TYPES = ("STRING", "INT", "INT", "BOOLEAN")
+    RETURN_NAMES = ("line_text", "line_index", "line_count", "is_last")
+    FUNCTION = "read_line"
+    CATEGORY = "String Function"
+    DESCRIPTION = "テキストファイルを1行ずつ読み込みます。実行のたびに次の行へ進みます"
+
+    @classmethod
+    def IS_CHANGED(cls, file_path, mode="sequential", reset=False, encoding="utf-8",
+                   skip_empty_lines=False, unique_id=None):
+        return float("nan")
+
+    def _load_lines(self, file_path, encoding, skip_empty):
+        file_path = _normalize_path(file_path)
+        if not file_path or not os.path.isfile(file_path):
+            return []
+        try:
+            text = _read_text(file_path, encoding)
+            lines = text.splitlines()
+            if skip_empty:
+                lines = [ln for ln in lines if ln.strip()]
+            return lines
+        except Exception:
+            return []
+
+    def read_line(self, file_path, mode="sequential", reset=False, encoding="auto",
+                  skip_empty_lines=False, unique_id=None):
+        file_path = _normalize_path(file_path)
+        key = str(unique_id) if unique_id else file_path
+        lines = self._load_lines(file_path, encoding, skip_empty_lines)
+
+        if not lines:
+            return ("", 0, 0, True)
+
+        line_count = len(lines)
+        st = self._state.get(key)
+
+        if st is None or st["file_path"] != file_path:
+            order = None
+            if mode == "shuffle":
+                order = list(range(line_count))
+                _random.shuffle(order)
+            st = {"file_path": file_path, "index": 0, "order": order}
+            self._state[key] = st
+
+        if reset:
+            st["index"] = 0
+            if mode == "shuffle":
+                order = list(range(line_count))
+                _random.shuffle(order)
+                st["order"] = order
+
+        idx = st["index"]
+
+        if mode == "shuffle":
+            order = st.get("order")
+            if order is None or len(order) != line_count:
+                order = list(range(line_count))
+                _random.shuffle(order)
+                st["order"] = order
+                st["index"] = 0
+                idx = 0
+
+        if idx >= line_count:
+            idx = 0
+            st["index"] = 0
+
+        if mode == "shuffle":
+            actual_idx = st["order"][idx]
+            line_text = lines[actual_idx]
+            line_number = actual_idx + 1
+        else:
+            line_text = lines[idx]
+            line_number = idx + 1
+
+        is_last = (idx == line_count - 1)
+
+        next_idx = idx + 1
+        if next_idx >= line_count:
+            st["index"] = 0
+            if mode == "shuffle":
+                new_order = list(range(line_count))
+                _random.shuffle(new_order)
+                st["order"] = new_order
+        else:
+            st["index"] = next_idx
+
+        return (line_text, line_number, line_count, is_last)
+
+
+class FolderFileRead:
+    """フォルダ内のファイルを1つずつ読み込む（実行のたびに次のファイルへ進む）"""
+
+    _MODES = ["sequential", "shuffle"]
+    _ENCODINGS = ["auto", "utf-8", "utf-8-sig", "cp932"]
+    _SORT_ORDERS = ["name_asc", "name_desc", "modified_asc", "modified_desc"]
+    _state: dict = {}
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "folder_path": ("STRING", {"multiline": False, "default": ""}),
+            },
+            "optional": {
+                "mode": (cls._MODES, {"default": "sequential"}),
+                "reset": ("BOOLEAN", {
+                    "default": False,
+                    "tooltip": "True を受けた実行でカウンタをリセットし先頭から再開する",
+                }),
+                "extension_filter": ("STRING", {
+                    "multiline": False,
+                    "default": ".txt",
+                    "tooltip": "対象拡張子（カンマ区切り例: .txt,.md）。空白で全ファイル",
+                }),
+                "encoding": (cls._ENCODINGS, {"default": "auto"}),
+                "sort_order": (cls._SORT_ORDERS, {
+                    "default": "name_asc",
+                    "tooltip": "sequential モード時のファイル順序",
+                }),
+            },
+            "hidden": {
+                "unique_id": "UNIQUE_ID",
+            },
+        }
+
+    RETURN_TYPES = ("STRING", "STRING", "STRING", "INT", "INT", "BOOLEAN")
+    RETURN_NAMES = ("text", "file_name", "file_path_out", "file_index", "file_count", "is_last")
+    FUNCTION = "read_folder_file"
+    CATEGORY = "String Function"
+    DESCRIPTION = "フォルダ内のファイルを1つずつ読み込みます。実行のたびに次のファイルへ進みます"
+
+    @classmethod
+    def IS_CHANGED(cls, folder_path, mode="sequential", reset=False, extension_filter=".txt",
+                   encoding="utf-8", sort_order="name_asc", unique_id=None):
+        return float("nan")
+
+    def _get_file_list(self, folder_path, extension_filter, sort_order):
+        folder_path = _normalize_path(folder_path)
+        if not folder_path or not os.path.isdir(folder_path):
+            return []
+        exts = set()
+        if extension_filter.strip():
+            for e in extension_filter.split(","):
+                e = e.strip()
+                if e and not e.startswith("."):
+                    e = "." + e
+                if e:
+                    exts.add(e.lower())
+        files = []
+        for fname in os.listdir(folder_path):
+            fpath = os.path.join(folder_path, fname)
+            if not os.path.isfile(fpath):
+                continue
+            if exts:
+                _, ext = os.path.splitext(fname)
+                if ext.lower() not in exts:
+                    continue
+            files.append(fpath)
+        if sort_order == "name_asc":
+            files.sort(key=lambda p: os.path.basename(p).lower())
+        elif sort_order == "name_desc":
+            files.sort(key=lambda p: os.path.basename(p).lower(), reverse=True)
+        elif sort_order == "modified_asc":
+            files.sort(key=lambda p: os.path.getmtime(p))
+        elif sort_order == "modified_desc":
+            files.sort(key=lambda p: os.path.getmtime(p), reverse=True)
+        return files
+
+    def read_folder_file(self, folder_path, mode="sequential", reset=False,
+                         extension_filter=".txt", encoding="auto",
+                         sort_order="name_asc", unique_id=None):
+        folder_path = _normalize_path(folder_path)
+        key = str(unique_id) if unique_id else folder_path
+        files = self._get_file_list(folder_path, extension_filter, sort_order)
+
+        if not files:
+            return ("", "", "", 0, 0, True)
+
+        file_count = len(files)
+        st = self._state.get(key)
+
+        if st is None or st["folder_path"] != folder_path:
+            order = None
+            if mode == "shuffle":
+                order = list(range(file_count))
+                _random.shuffle(order)
+            st = {"folder_path": folder_path, "index": 0, "order": order}
+            self._state[key] = st
+
+        if reset:
+            st["index"] = 0
+            if mode == "shuffle":
+                order = list(range(file_count))
+                _random.shuffle(order)
+                st["order"] = order
+
+        idx = st["index"]
+
+        if mode == "shuffle":
+            order = st.get("order")
+            if order is None or len(order) != file_count:
+                order = list(range(file_count))
+                _random.shuffle(order)
+                st["order"] = order
+                st["index"] = 0
+                idx = 0
+
+        if idx >= file_count:
+            idx = 0
+            st["index"] = 0
+
+        if mode == "shuffle":
+            actual_idx = st["order"][idx]
+            fpath = files[actual_idx]
+            file_number = actual_idx + 1
+        else:
+            fpath = files[idx]
+            file_number = idx + 1
+
+        is_last = (idx == file_count - 1)
+
+        try:
+            text = _read_text(fpath, encoding)
+        except Exception:
+            text = ""
+
+        file_name = os.path.basename(fpath)
+
+        next_idx = idx + 1
+        if next_idx >= file_count:
+            st["index"] = 0
+            if mode == "shuffle":
+                new_order = list(range(file_count))
+                _random.shuffle(new_order)
+                st["order"] = new_order
+        else:
+            st["index"] = next_idx
+
+        return (text, file_name, fpath, file_number, file_count, is_last)
+
+
 class StringFind:
     """文字列内で特定の文字列が何文字目にあるかを返す (1始まり、見つからない場合は 0)"""
 
@@ -601,6 +938,9 @@ class PromptPreview:
 
 
 NODE_CLASS_MAPPINGS = {
+    "SFn_FileRead":           FileRead,
+    "SFn_FileReadLine":       FileReadLine,
+    "SFn_FolderFileRead":     FolderFileRead,
     "SFn_StringFind":         StringFind,
     "SFn_StringSplit":        StringSplit,
     "SFn_StringLeft":         StringLeft,
@@ -616,6 +956,9 @@ NODE_CLASS_MAPPINGS = {
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
+    "SFn_FileRead":           "File Read",
+    "SFn_FileReadLine":       "File Read Line",
+    "SFn_FolderFileRead":     "Folder File Read",
     "SFn_StringFind":         "String Find",
     "SFn_StringSplit":        "String Split",
     "SFn_StringLeft":         "String Left",
