@@ -2,6 +2,38 @@
 
 ---
 
+## v1.2.0
+
+### Release title
+LM Studio Prompt Generator を追加 / String Extract Prompt を大幅改善
+
+### Release notes
+
+#### 新機能
+
+**LM Studio Prompt Generator** — テーマから LM Studio で生成し、prompt / negative_prompt を抽出するまでを1ノードで実行
+- LM Studio の Structured Output（JSON Schema）を自動付与し、出力形式の崩れを防止
+- `structured_output` を False にすると `PROMPT:` / `NEGATIVE:` 形式のテキストから抽出
+- 接続先は `.env` の `LMSTUDIO_BASE_URL` で指定（リモートの LM Studio も可、`.env.example` 参照）
+- `model_key` を空にすると LM Studio 上のロード済みモデルを自動使用
+- `auto_unload` / `unload_delay`（TTL）、`seed`、`max_tokens`、`temperature`、`timeout_seconds` に対応
+- 出力は Prompt Preview にそのまま接続可能（`prompt` / `negative_prompt` / `raw_text` / `method_used` / `success`）
+- 接続失敗・タイムアウト時はエラーでワークフローを停止（空プロンプトで生成が進まない）
+
+#### 改善: String Extract Prompt
+- auto の順序を `json → code_block → after_label → 前置き/後書き除去` に変更
+- JSON 抽出を強化（コードブロック内・地の文中・入れ子・大文字小文字違い・途中で切れた出力に対応）
+- `**Prompt:**` や `### Positive Prompt` 等のマークダウン形式ラベルに対応、Negative prompt 併記を自動除外
+- 以下のモデル出力形式を吸収: Qwen3 / DeepSeek-R1（`<think>`、開始タグ無し `</think>`、閉じ忘れ）、gpt-oss、Llama 3、ChatML、Gemma、Mistral、LM Studio の reasoning マーカー
+- 「The image shows…」のような説明文を前置きとして誤って削除していた問題を修正
+- `json_key` のデフォルトに `positive_prompt,positive` を追加
+
+#### バグ修正
+- **String Replace**: `case_sensitive=False` かつ `count=0` のとき全置換されていた問題
+- **String Split**: `occurrence` が区切り文字の長さを考慮せず重なってカウントしていた問題
+
+---
+
 ## v1.1.0
 
 ### Release title
